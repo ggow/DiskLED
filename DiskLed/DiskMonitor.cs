@@ -29,7 +29,6 @@ namespace DiskLed
     {
         private const string pcCategory = "PhysicalDisk";
         private const string pcName = "Disk Bytes/sec";
-        private const string pcInstance = "0 C:";
         private PerformanceCounter performanceCounter;
 
         public int Interval { get; set; }
@@ -37,10 +36,27 @@ namespace DiskLed
         // Clients subscribe for reports through this event handler
         public event DiskMonitorReportHandler Report;
         public delegate void DiskMonitorReportHandler(object sender, DiskMonitorReportEventArgs e);
-        
+
+        private string findSystemDrive(string categoryName)
+        {
+            PerformanceCounterCategory category =
+                PerformanceCounterCategory.GetCategories().First(c => c.CategoryName == categoryName);
+
+            string[] instanceNames = category.GetInstanceNames();
+
+            foreach (string instanceName in instanceNames)
+            {
+                if (instanceName.Contains("C:"))
+                    return instanceName;
+            }
+
+            // shouldn't reach here because PhysicalDisk has multiple instances
+            return string.Empty;
+        }
+
         public DiskMonitor(int interval)
         {
-            performanceCounter = new PerformanceCounter(pcCategory, pcName, pcInstance);
+            performanceCounter = new PerformanceCounter(pcCategory, pcName, findSystemDrive(pcCategory));
             Interval = interval;
         }
 
