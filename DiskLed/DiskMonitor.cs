@@ -10,18 +10,16 @@ namespace DiskLed
 {
     public class DiskMonitorReportEventArgs : EventArgs
     {
-        public DiskMonitorReportEventArgs(float sample)
+        public DiskMonitorReportEventArgs(bool hasActivity)
         {
             TimeNow = DateTime.Now;
-            Sample = sample;
 
             // this could be a post process function/filter
             // keep it simple for now
-            if (Sample > 0)
-                HasActivity = true;
+            HasActivity = hasActivity;
         }
         private DateTime TimeNow;
-        private float Sample;
+        //private float Sample;
         public bool HasActivity = false;
     }
 
@@ -29,7 +27,7 @@ namespace DiskLed
     {
         private const string pcCategory = "PhysicalDisk";
         private const string pcName = "Disk Bytes/sec";
-        private PerformanceCounter performanceCounter;
+        private List<PerformanceCounter> performanceCounter;
 
         public int Interval { get; set; }
 
@@ -37,26 +35,25 @@ namespace DiskLed
         public event DiskMonitorReportHandler Report;
         public delegate void DiskMonitorReportHandler(object sender, DiskMonitorReportEventArgs e);
 
-        private string findSystemDrive(string categoryName)
+        private string[] getPhysicalDrives(string categoryName)
         {
             PerformanceCounterCategory category =
                 PerformanceCounterCategory.GetCategories().First(c => c.CategoryName == categoryName);
 
             string[] instanceNames = category.GetInstanceNames();
 
-            foreach (string instanceName in instanceNames)
-            {
-                if (instanceName.Contains("C:"))
-                    return instanceName;
-            }
-
-            // shouldn't reach here because PhysicalDisk has multiple instances
-            return string.Empty;
+            return instanceNames;
         }
 
         public DiskMonitor(int interval)
         {
-            performanceCounter = new PerformanceCounter(pcCategory, pcName, findSystemDrive(pcCategory));
+            performanceCounter = new List<PerformanceCounter>();
+
+            foreach (string instanceName in getPhysicalDrives(pcCategory))
+            {
+                performanceCounter.Add(new PerformanceCounter(pcCategory, pcName, instanceName));
+            }
+
             Interval = interval;
         }
 
@@ -70,8 +67,17 @@ namespace DiskLed
 
                     if (Report != null)
                     {
+                        bool isActivity = false;
+                        foreach (PerformanceCounter pc in performanceCounter)
+                        {
+                            if (pc.NextValue() > 0)
+                            {
+                                isActivity = true;
+                                break;
+                            }
+                        }
                         DiskMonitorReportEventArgs e =
-                            new DiskMonitorReportEventArgs(performanceCounter.NextValue());
+                            new DiskMonitorReportEventArgs(isActivity);
 
                         Report(this, e);
                     }

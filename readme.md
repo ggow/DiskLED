@@ -5,5 +5,5 @@
 - Useful for notebooks that don't have a hardware LED
 - 
 ## Build / Requirements
-- Uses .net 4.7.2
-- Visual Studio 2019
+- Uses .net 4.8
+- Visual Studio 2022
