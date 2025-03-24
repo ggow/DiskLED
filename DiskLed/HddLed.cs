@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Drawing;
+using System.Runtime.Versioning;
 
 namespace DiskLed
 {
@@ -39,6 +40,7 @@ namespace DiskLed
         private Icon iconOff = global::DiskLed.Properties.Resources.off;
         private Icon iconOn = global::DiskLed.Properties.Resources.on;
 
+        [SupportedOSPlatform("windows")]
         public HddLed()
         {
             trayIcon = new NotifyIcon();
@@ -51,6 +53,7 @@ namespace DiskLed
             isOn = false;
         }
 
+        [SupportedOSPlatform("windows")]
         private void OnExit(object sender, EventArgs e)
         {
             ContextMenuEventArgs cme =
@@ -67,6 +70,7 @@ namespace DiskLed
             }
         }
 
+        [SupportedOSPlatform("windows")]
         public void turnOn()
         {
             if (isOn == true)
@@ -76,6 +80,7 @@ namespace DiskLed
             isOn = true;
         }
 
+        [SupportedOSPlatform("windows")]
         public void turnOff()
         {
             if (isOn == false)

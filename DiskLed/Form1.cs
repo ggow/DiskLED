@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Diagnostics;
+using System.Runtime.Versioning;
 
 namespace DiskLed
 {
@@ -19,6 +20,7 @@ namespace DiskLed
         private CancellationTokenSource tokenSource;
         private CancellationToken token;
 
+        [SupportedOSPlatform("windows")]
         public Form1()
         {
             InitializeComponent();
@@ -33,6 +35,7 @@ namespace DiskLed
             diskMonitor.Report += DiskMonitorReport;
         }
 
+        [SupportedOSPlatform("windows")]
         private void DiskMonitorReport(object sender, DiskMonitorReportEventArgs e)
         {
             if (e.HasActivity)
@@ -41,12 +44,14 @@ namespace DiskLed
                 hddLed.turnOff();
         }
 
+        [SupportedOSPlatform("windows")]
         private void HddLed_ContextMenuSelectionEvent(object sender, ContextMenuEventArgs e)
         {
             tokenSource.Cancel();
             Application.Exit();
         }
 
+        [SupportedOSPlatform("windows")]
         private void Form1_Load(object sender, EventArgs e)
         {
             Visible = false; // Hide form window.

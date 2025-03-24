@@ -5,6 +5,8 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Diagnostics;
+using System.IO;
+using System.Runtime.Versioning;
 
 namespace DiskLed
 {
@@ -35,6 +37,7 @@ namespace DiskLed
         public event DiskMonitorReportHandler Report;
         public delegate void DiskMonitorReportHandler(object sender, DiskMonitorReportEventArgs e);
 
+        [SupportedOSPlatform("windows")]
         private string[] getPhysicalDrives(string categoryName)
         {
             PerformanceCounterCategory category =
@@ -45,6 +48,7 @@ namespace DiskLed
             return instanceNames;
         }
 
+        [SupportedOSPlatform("windows")]
         public DiskMonitor(int interval)
         {
             performanceCounter = new List<PerformanceCounter>();
@@ -57,6 +61,7 @@ namespace DiskLed
             Interval = interval;
         }
 
+        [SupportedOSPlatform("windows")]
         public void Start(CancellationToken token)
         {
             Task newtask = Task.Run(() =>
@@ -68,6 +73,7 @@ namespace DiskLed
                     if (Report != null)
                     {
                         bool isActivity = false;
+
                         foreach (PerformanceCounter pc in performanceCounter)
                         {
                             if (pc.NextValue() > 0)
