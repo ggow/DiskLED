@@ -29,7 +29,7 @@ namespace DiskLed
             hddLed = new HddLed();
             hddLed.ContextMenuSelectionEvent += HddLed_ContextMenuSelectionEvent;
 
-            diskMonitor = new DiskMonitor(100);
+            diskMonitor = new DiskMonitor(1);
             diskMonitor.Report += DiskMonitorReport;
         }
 
